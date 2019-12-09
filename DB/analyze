@@ -1,0 +1,166 @@
+from sqlalchemy import create_engine
+from sqlalchemy import *
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+import initialization, insertion
+from datetime import datetime
+
+engine = create_engine("sqlite:///db1.sqlite")
+session = Session(bind=engine)
+
+
+
+result = session.query(initialization.Customer).all()
+for row in result:
+   print ("Name: ",row.first_name," ",row.last_name, " Address:",row.address, " Email:",row.email)
+
+
+
+
+result = session.query(initialization.Item).all()
+for row in result:
+   print ("Name: ",row.name," Cost Price:",row.cost_price, " Selling Price:",row.selling_price, " Quantity:",row.quantity)
+
+
+result = session.query(initialization.Order).all()
+for row in result:
+   print ("ID: ",row.id," Date Placed:",row.date_placed, " Customer Id:",row.customer_id)
+
+
+
+print(session.query(initialization.Customer))
+
+
+
+print(session.query(initialization.Customer).count())
+print(session.query(initialization.Item).count())
+print(session.query(initialization.Order).count())
+
+
+
+result = session.query(initialization.Customer).first()
+print ("Name: ",result.first_name," ",result.last_name, " Address:",result.address, " Email:",result.email)
+
+result = session.query(initialization.Item).first()
+print ("Name: ",result.name," Cost Price:",result.cost_price, " Selling Price:",result.selling_price, " Quantity:",result.quantity)
+
+result = session.query(initialization.Order).first()
+print ("ID: ",result.id," Date Placed:",result.date_placed, " Customer Id:",result.customer_id)
+
+result = session.query(initialization.Customer).get(1)
+print ("Name: ",result.first_name," ",result.last_name, " Address:",result.address, " Email:",result.email)
+result = session.query(initialization.Item).get(1)
+print ("Name: ",result.name," Cost Price:",result.cost_price, " Selling Price:",result.selling_price, " Quantity:",result.quantity)
+result = session.query(initialization.Order).get(100)
+if(result != None): print ("ID: ",result.id," Date Placed:",result.date_placed, " Customer Id:",result.customer_id)
+else: print(result)
+
+result = session.query(initialization.Customer).filter(initialization.Customer.first_name == 'John').all()
+print("All customers with name starting with John:")
+for row in result:
+   print ("Name: ",row.first_name," ",row.last_name, " Address:",row.address, " Email:",row.email)
+
+result = session.query(initialization.Customer).filter(initialization.Customer.id <= 5, initialization.Customer.town.like("Nor%")).all()
+print("All customers with id less than or equal to 5 and living in Norfolk town:")
+for row in result:
+   print ("Name: ",row.first_name," ",row.last_name, " Address:",row.address, " Email:",row.email)
+
+print("find all customers who either live in Peterbrugh or Norfolk")
+result = session.query(initialization.Customer).filter(or_(initialization.Customer.town == 'Peterbrugh',initialization.Customer.town == 'Norfolk')).all()
+for row in result:
+   print ("Name: ",row.first_name," ",row.last_name, " Address:",row.address, " Email:",row.email)
+
+print("find all customers whose first name is John and live in Norfolk")
+result = session.query(initialization.Customer).filter(and_(initialization.Customer.first_name == 'John',initialization.Customer.town == 'Norfolk')).all()
+for row in result:
+   print ("Name: ",row.first_name," ",row.last_name, " Address:",row.address, " Email:",row.email)
+
+print("find all johns who don't live in Peterbrugh")
+result = session.query(initialization.Customer).filter(and_(initialization.Customer.first_name == 'John',not_(initialization.Customer.town == 'Peterbrugh',))).all()
+for row in result:
+   print ("Name: ",row.first_name," ",row.last_name, " Address:",row.address, " Email:",row.email)
+
+print("")
+
+
+result = session.query(initialization.Order).filter(initialization.Order.date_placed == None).all()
+print("All Orders with Date Shipped as None")
+if(result != None):
+   for row in result:
+      print("ID: ", row.id, " Date Placed:", row.date_placed, " Customer Id:", row.customer_id)
+else: print("NO RESULT")
+
+result = session.query(initialization.Order).filter(initialization.Order.date_placed != None).all()
+print("All Orders with Date Shipped Not as None")
+if(result != None):
+   for row in result:
+      print("ID: ", row.id, " Date Placed:", row.date_placed, " Customer Id:", row.customer_id)
+else: print("NO RESULT")
+
+
+result = session.query(initialization.Customer).filter(initialization.Customer.first_name.in_(['Toby', 'Sarah'])).all()
+print("All Customers whose name start with Toby or Sarah:")
+for row in result:
+   print ("Name: ",row.first_name," ",row.last_name, " Address:",row.address, " Email:",row.email)
+
+result = session.query(initialization.Customer).filter(initialization.Customer.first_name.in_(['Toby', 'Sarah'])).all()
+print("All Customers whose name does not start with Toby or Sarah:")
+for row in result:
+   print ("Name: ",row.first_name," ",row.last_name, " Address:",row.address, " Email:",row.email)
+
+result =  session.query(initialization.Item).filter(initialization.Item.cost_price.between(10, 50)).all()
+print("All Items whose cost price is between 10 and 50:")
+for row in result:
+   print ("Name: ",row.name," Cost Price:",row.cost_price, " Selling Price:",row.selling_price, " Quantity:",row.quantity)
+
+result =  session.query(initialization.Item).filter(initialization.Item.cost_price.between(10, 50)).all()
+print("All Items whose cost price is not between 10 and 50:")
+for row in result:
+   print ("Name: ",row.name," Cost Price:",row.cost_price, " Selling Price:",row.selling_price, " Quantity:",row.quantity)
+
+result  = session.query(initialization.Item).filter(initialization.Item.name.like("%r")).all()
+print("All Items whose name ends with r:")
+for row in result:
+   print ("Name: ",row.name," Cost Price:",row.cost_price, " Selling Price:",row.selling_price, " Quantity:",row.quantity)
+
+result  = session.query(initialization.Item).filter(initialization.Item.name.like("w%")).all()
+print("All Items whose name starts with w:")
+for row in result:
+   print ("Name: ",row.name," Cost Price:",row.cost_price, " Selling Price:",row.selling_price, " Quantity:",row.quantity)
+
+result =  session.query(initialization.Customer).limit(2).all()
+print("Printing all customers but limiting to 2:")
+for row in result:
+   print ("Name: ",row.first_name," ",row.last_name, " Address:",row.address, " Email:",row.email)
+
+result =  session.query(initialization.Customer).limit(2).offset(2).all()
+print("Printing all customers but limiting to 2 and offsetting to 2:")
+for row in result:
+   print ("Name: ",row.first_name," ",row.last_name, " Address:",row.address, " Email:",row.email)
+
+result =  session.query(initialization.Item).filter(initialization.Item.name.like("wa%")).order_by(desc(initialization.Item.cost_price)).all()
+print("Printing all items that start with wa and then it is sorted by the cost price in descending order:")
+for row in result:
+   print ("Name: ",row.name," Cost Price:",row.cost_price, " Selling Price:",row.selling_price, " Quantity:",row.quantity)
+
+result =  session.query(initialization.Customer, initialization.Order.date_placed).join(initialization.Order).all()
+print("Join between Customer and Order:")
+for row in result:
+   print (" Order placed on:",row.date_placed)
+
+result =  session.query(initialization.Customer.first_name, initialization.Order.id).outerjoin(initialization.Order).all()
+print("Outer Join between Customer and Order:")
+for row in result:
+   print (" Order placed by:",row.first_name, " with Order ID:",row.id)
+
+result =  session.query(func.count(initialization.Customer.id)).join(initialization.Order).filter(
+   initialization.Customer.first_name == 'John',
+   initialization.Customer.last_name == 'Green',
+).group_by(initialization.Customer.id).scalar()
+
+
+
+
+result =  session.query(initialization.Customer.town).filter(initialization.Customer.id <=10).distinct().all()
+
+
