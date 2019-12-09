@@ -164,3 +164,38 @@ result =  session.query(func.count(initialization.Customer.id)).join(initializat
 result =  session.query(initialization.Customer.town).filter(initialization.Customer.id <=10).distinct().all()
 
 
+for row in result:
+   print (row.town)
+
+
+
+s1 = session.query(initialization.Item.id, initialization.Item.name).filter(initialization.Item.name.like("Wa%"))
+s2 = session.query(initialization.Item.id, initialization.Item.name).filter(initialization.Item.name.like("%e%"))
+result =  s1.union(s2).all()
+
+
+for row in result:
+   print (row)
+
+result = session.query(initialization.Item).filter(
+    initialization.Item.name.ilike("W%")
+).update({"quantity": 60}, synchronize_session='fetch')
+session.commit()
+
+
+
+
+
+result = session.query(initialization.Item).filter(initialization.Item.name == 'Monitor').one()
+session.delete(result)
+session.commit()
+
+
+print(result.name)
+
+
+
+
+result = session.query(initialization.Order).all()
+
+print("Orders Status:")
